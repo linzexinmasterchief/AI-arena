@@ -42,9 +42,9 @@ def graphics_thread():
     global start, target
     while graphics_continue:
         pygame.draw.rect(screen, BLACK, (0, 0, 400, 400))
-        # pygame.draw.rect(screen, RED, (start.get_graphic_position()[0], start.get_graphic_position()[1], start.get_size()[0], start.get_size()[1]))
-        # pygame.draw.circle(screen, GREEN, (target.get_graphic_position()[0], target.get_graphic_position()[1], target.get_size()[0], start.get_size()[1]))
-        draw_triangle(screen, GREEN, [100, 100], d)
+        pygame.draw.rect(screen, RED, (int(start.get_graphic_position()[0]), int(start.get_graphic_position()[1]), start.get_size()[0], start.get_size()[1]))
+        pygame.draw.circle(screen, GREEN, (int(target.get_graphic_position()[0]), int(target.get_graphic_position()[1])), target.get_size()[0], target.get_size()[1])
+        # draw_triangle(screen, GREEN, [100, 100], d)
         # d += 0.02
         pygame.display.flip()
         graphics_clock.tick(60)
@@ -52,7 +52,7 @@ def graphics_thread():
 def physics_thread():
     global start, target
     while physics_continue:
-        start.set_direction
+        start.set_direction(0)
 
 
 gTarget = threading.Thread(target=graphics_thread)
