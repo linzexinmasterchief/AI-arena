@@ -1,7 +1,9 @@
+import pygame
+
+
 class bot():
-    def __init__(self, center_position = [0, 0], size = (10, 10), color = (255, 0, 0)):
-        self.size = size
-        self.color = color
+    def __init__(self, center_position=[0, 0], r=3):
+        self.r = r
         self.center_position = center_position
         self.effect_list = []
         self.direction = 0
@@ -22,10 +24,18 @@ class bot():
         return self.center_position
 
     def get_graphic_position(self):
-        return [self.center_position[0] - (self.size[0] / 2), self.center_position[1] - (self.size[1] / 2)]
+        return [self.center_position[0] - (self.r / 2), self.center_position[1] - (self.r / 2)]
     
-    def get_size(self):
-        return self.size
+    def get_r(self):
+        return self.r
+
+    def show(self, screen, type="predator"):
+        if type == "predator":
+            color = (255, 0, 0)
+        elif type == "pray":
+            color = (0, 255, 0)
+        pygame.draw.circle(screen, color, (int(self.get_graphic_position()[0]), int(self.get_graphic_position()[1])), self.r, self.r)
+
 
 class animal(bot):
     
@@ -49,8 +59,10 @@ class animal(bot):
     def reproduce(self):
         pass
 
+
 class cornivore(animal):
     pass
+
 
 class herbivore(animal):
     pass

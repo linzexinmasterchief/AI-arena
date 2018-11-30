@@ -23,29 +23,12 @@ GREY = (200, 200, 200)
 start = bot(center_position=[50, 50])
 target = bot(center_position=[300, 200])
 
-def draw_triangle(Surface, color, position, direction):
-    # direction is an Eular angle
-    point_distance = 50
-    pygame.draw.polygon(
-        Surface, 
-        color, 
-        [(position[0] + point_distance * math.sin(direction), position[1] + point_distance * math.cos(direction)),
-         (position[0] + point_distance * math.sin(direction + 120), position[1] + point_distance * math.cos(direction + 120)),
-         (position[0] + point_distance * math.sin(direction - 120), position[1] + point_distance * math.cos(direction - 120))], 
-        1)
-    pygame.draw.rect(Surface, RED, (position[0], position[1], 3,3), 2)
-
-    # pygame.draw.polygon(Surface, color, [(50, 50),(55,55),(52, 54)], 10)
-
 def graphics_thread():
     d = 0.0
     global start, target
     while graphics_continue:
-        pygame.draw.rect(screen, BLACK, (0, 0, 400, 400))
-        pygame.draw.rect(screen, RED, (int(start.get_graphic_position()[0]), int(start.get_graphic_position()[1]), start.get_size()[0], start.get_size()[1]))
-        pygame.draw.circle(screen, GREEN, (int(target.get_graphic_position()[0]), int(target.get_graphic_position()[1])), target.get_size()[0], target.get_size()[1])
-        # draw_triangle(screen, GREEN, [100, 100], d)
-        # d += 0.02
+        start.show(screen, type="predator")
+        target.show(screen, type="pray")
         pygame.display.flip()
         graphics_clock.tick(60)
 
