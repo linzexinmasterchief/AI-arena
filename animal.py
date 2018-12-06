@@ -60,9 +60,11 @@ class animal(bot):
         pass
 
 
-class cornivore(animal):
+class predator(animal):
+    # hunt pray
     pass
 
 
-class herbivore(animal):
+class pray(animal):
+    # escape from predator
     pass
