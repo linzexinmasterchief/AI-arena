@@ -1,41 +1,26 @@
 import pygame
 
-
 class bot():
-    def __init__(self, center_position=[0, 0], r=3):
-        self.r = r
-        self.center_position = center_position
-        self.effect_list = []
-        self.direction = 0
+    def __init__(self, center_position=[0, 0]):
+        self.__center_position = center_position
+        self.__effect_list = []
+        self.__direction = 0
 
-    def set_position(self, center_position):
+    def set_pos(self, center_position):
+        self.__center_position = center_position
         pass
     
     def set_direction(self, direction):
-        self.direction = direction
+        self.__direction = direction
 
     def set_speed(self, speed):
-        self.speed = speed
+        self.__speed = speed
 
     def next_step(self):
         pass
 
-    def get_center_position(self):
-        return self.center_position
-
-    def get_graphic_position(self):
-        return [self.center_position[0] - (self.r / 2), self.center_position[1] - (self.r / 2)]
-    
-    def get_r(self):
-        return self.r
-
-    def show(self, screen, type="predator"):
-        if type == "predator":
-            color = (255, 0, 0)
-        elif type == "pray":
-            color = (0, 255, 0)
-        pygame.draw.circle(screen, color, (int(self.get_graphic_position()[0]), int(self.get_graphic_position()[1])), self.r, self.r)
-
+    def get_pos(self):
+        return self.__center_position
 
 class animal(bot):
     
