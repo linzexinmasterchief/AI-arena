@@ -11,7 +11,7 @@ from picToMap import *
 
 pygame.init()
 
-map_size = (100, 100)
+map_size = (30, 30)
 
 screen = pygame.display.set_mode((map_size[0] * 10, map_size[1] * 10))
 pygame.display.set_caption("AI_playground")
@@ -31,19 +31,19 @@ BLACK = (0, 0, 0)
 GREY = (200, 200, 200)
 
 start = bot(center_position=[1, 1])
-target = bot(center_position=[99, 99])
+target = bot(center_position=[29, 29])
 
 
 
 # the size of each grid is 10x10 -> map cordinate = pixel cordinate / 10
 m = GridWithWeights(map_size[0], map_size[1])
 # produce map from grey scale picture, contains walls
-mapArray = generateMap("map.bmp")
+mapArray = generateMap("map.bmp", map_size[0], map_size[1])
 m.walls = []
 for y in range(len(mapArray)):
     for x in range(len(mapArray[y])):
-        if mapArray[x][y] != 255:
-            m.walls.append((x, y))
+        if mapArray[x][y] < 255:
+            m.walls.append((29 - y, x))
 path = a_star_search(m, (start.get_pos()[0], start.get_pos()[1]), (target.get_pos()[0], target.get_pos()[1]))
 
 def graphics_thread():
@@ -56,10 +56,10 @@ def graphics_thread():
                     c = BLUE
                 elif m.passable((row, col)):
                     # ground color
-                    c = GREY
+                    c = BLACK
                 else:
                     # wall color
-                    c = ORANGE
+                    c = GREY
                 # draw map block
                 pygame.draw.rect(screen, c, (row * 10, col * 10, 8, 8))
 
@@ -73,6 +73,7 @@ def graphics_thread():
 
 def physics_thread():
     global start, target, path, m
+    timeCounter = 0
     while physics_continue:
         mpx, mpy = pygame.mouse.get_pos()
         mouse_pos_x = mpx // 10
@@ -84,7 +85,16 @@ def physics_thread():
 
         path = a_star_search(m, (start.get_pos()[0], start.get_pos()[1]), (target.get_pos()[0], target.get_pos()[1]))
 
-        # physics_clock.tick(60)
+        if timeCounter > 2:
+            if len(path) > 1:
+                start.set_pos(path[1])
+            timeCounter = 0
+        else:
+            timeCounter += 1
+
+        if start.get_pos() == target.get_pos():
+            print("catched!")
+        physics_clock.tick(60)
 
 
 # physics thread start

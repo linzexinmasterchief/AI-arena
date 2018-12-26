@@ -16,6 +16,9 @@ class bot():
     def set_speed(self, speed):
         self.__speed = speed
 
+    def get_speed(self):
+        return self.__speed
+
     def next_step(self):
         pass
 
