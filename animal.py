@@ -1,29 +1,25 @@
 import pygame
+import random
 
 class bot():
     def __init__(self, center_position=[0, 0]):
         self.__center_position = center_position
-        self.__effect_list = []
-        self.__direction = 0
+        self.__move_duration = random.randint(1, 10)
+        self.timer = 0
+        self.pathToTarget = []
+
+    def get_pos(self):
+        return self.__center_position
 
     def set_pos(self, center_position):
         self.__center_position = center_position
         pass
-    
-    def set_direction(self, direction):
-        self.__direction = direction
 
-    def set_speed(self, speed):
-        self.__speed = speed
+    def set_move_duration(self, move_duration):
+        self.__move_duration = move_duration
 
-    def get_speed(self):
-        return self.__speed
-
-    def next_step(self):
-        pass
-
-    def get_pos(self):
-        return self.__center_position
+    def get_move_duration(self):
+        return self.__move_duration
 
 class animal(bot):
     
