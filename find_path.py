@@ -1,7 +1,6 @@
 # using an a star algorithm to help the AI finding their path to the target
 import heapq
 
-
 class PriorityQueue:
     def __init__(self):
         self.elements = []

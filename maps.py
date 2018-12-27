@@ -30,8 +30,8 @@ class GridWithWeights(SquareGrid):
 
 
 def draw_map(map, path):
-    for x in range(map.height):
-        for y in range(map.width):
+    for y in range(map.height):
+        for x in range(map.width):
             label = " "
             pos = (x, y)
             if pos in path:
@@ -42,12 +42,3 @@ def draw_map(map, path):
                 label = "#"
             print(label, end=" ")
         print()
-
-
-# testing
-from find_path import *
-m = GridWithWeights(30, 15)
-m.walls = [(2,2), (2,3), (2,4), (3,3), (3,4), (6,7), (7,7), (6,8), (7,8), (7,9)]
-
-path = a_star_search(m, (0, 0), (17, 9))
-draw_map(m, path)
