@@ -29,6 +29,8 @@ def a_star_search(graph, start, goal):
     came_from[start] = None
     cost_so_far[start] = 0
 
+    max_search_depth = 10
+
     while not frontier.empty():
         current = frontier.get()
 

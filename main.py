@@ -41,6 +41,7 @@ predator2 = bot(center_position=[29, 1])
 predator3 = bot(center_position=[20, 20])
 # organize predators into a predator list
 predatorList = [predator1, predator2, predator3]
+# predatorList = [predator1]
 
 # initialize target position
 target = bot(center_position=[29, 29])
@@ -109,7 +110,7 @@ def physics_thread():
                 print("catched!")
 
         # print(str(predator1.timer) + " | " + str(predator2.timer))
-        physics_clock.tick(100)
+        physics_clock.tick(60)
 
 
 # physics thread predator1

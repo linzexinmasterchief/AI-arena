@@ -4,7 +4,9 @@ import random
 class bot():
     def __init__(self, center_position=[0, 0]):
         self.__center_position = center_position
-        self.__move_duration = random.randint(1, 10)
+        self.__move_duration = random.randint(5, 20)
+        self.field_of_view = random.randint(5, 180)
+        self.range_of_view = random.randint(1, 30)
         self.timer = 0
         self.pathToTarget = []
 
@@ -20,35 +22,3 @@ class bot():
 
     def get_move_duration(self):
         return self.__move_duration
-
-class animal(bot):
-    
-    def __init__(self, gender, x = 0, y = 0):
-        self.x = x
-        self.y = y
-        self.gender = gender
-
-    def move(self):
-        pass
-
-    def attack(self):
-        pass
-
-    def eat(self):
-        pass
-
-    def rest(self):
-        pass
-    
-    def reproduce(self):
-        pass
-
-
-class predator(animal):
-    # hunt pray
-    pass
-
-
-class pray(animal):
-    # escape from predator
-    pass
