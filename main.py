@@ -37,7 +37,7 @@ BLACK = (0, 0, 0)
 GREY = (200, 200, 200)
 
 # initialize predator positions
-predator1 = bot(center_position=[10, 10])
+predator1 = bot(center_position=[1, 1])
 predator2 = bot(center_position=[20, 10])
 predator3 = bot(center_position=[30, 10])
 # organize predators into a predator list
@@ -82,14 +82,12 @@ def graphics_thread():
 
                                 if dx**2 + dy ** 2 < predator.range_of_view ** 2 + 0.1:
                                     c = ORANGE
-
+                        
                         if (row, col) in predator.pathToTarget:
                             c = BLUE
                 else:
                     # wall color
                     c = GREY
-
-
                 # draw map block
                 pygame.draw.rect(screen, c, (row * 10, col * 10, 8, 8))
 
