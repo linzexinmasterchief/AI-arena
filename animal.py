@@ -5,8 +5,9 @@ class bot():
     def __init__(self, center_position=[0, 0]):
         self.__center_position = center_position
         self.__move_duration = random.randint(5, 20)
-        self.field_of_view = random.randint(5, 180)
-        self.range_of_view = random.randint(1, 30)
+        self.field_of_view = random.randint(90, 180)
+        self.range_of_view = random.randint(10, 30)
+        self.direction_of_view = 0
         self.timer = 0
         self.pathToTarget = []
 

@@ -21,7 +21,7 @@ def heuristic(a, b):
     return abs(x1 - x2) + abs(y1 - y2)
 
 
-def a_star_search(graph, start, goal):
+def a_star_search(graph, start, goal, max_search_depth = 15):
     frontier = PriorityQueue()
     frontier.put(start, 0)
     came_from = {}
@@ -29,12 +29,12 @@ def a_star_search(graph, start, goal):
     came_from[start] = None
     cost_so_far[start] = 0
 
-    max_search_depth = 10
+    node_count = 0
 
     while not frontier.empty():
         current = frontier.get()
 
-        if current == goal:
+        if current == goal or max_search_depth <= node_count:
             path = []
 
             while current is not None:
@@ -43,6 +43,8 @@ def a_star_search(graph, start, goal):
                 current = came_from[current]
 
             return path[::-1]
+        
+        node_count += 1
 
         for next in graph.neighbors(current):
             new_cost = cost_so_far[current] + graph.cost(current, next)

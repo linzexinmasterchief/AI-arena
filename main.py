@@ -1,5 +1,6 @@
 import pygame, sys, random, threading, math
 from pygame.locals import *
+import math
 
 from animal import *
 from find_path import *
@@ -12,7 +13,7 @@ from picToMap import *
 pygame.init()
 
 # set map size
-map_size = (30, 30)
+map_size = (50, 50)
 
 # create paint screen
 screen = pygame.display.set_mode((map_size[0] * 10, map_size[1] * 10))
@@ -36,39 +37,59 @@ BLACK = (0, 0, 0)
 GREY = (200, 200, 200)
 
 # initialize predator positions
-predator1 = bot(center_position=[1, 1])
-predator2 = bot(center_position=[29, 1])
-predator3 = bot(center_position=[20, 20])
+predator1 = bot(center_position=[10, 10])
+predator2 = bot(center_position=[20, 10])
+predator3 = bot(center_position=[30, 10])
 # organize predators into a predator list
 predatorList = [predator1, predator2, predator3]
 # predatorList = [predator1]
 
 # initialize target position
-target = bot(center_position=[29, 29])
+target = bot(center_position=[49, 49])
 
 
 # the size of each grid is 10x10 -> map cordinate = pixel cordinate / 10
 m = GridWithWeights(map_size[0], map_size[1])
 # produce map from grey scale picture, contains walls
-mapArray = generateMap("map.bmp", map_size[0], map_size[1])
+mapArray = generateMap("map100.bmp", map_size[0], map_size[1])
 m.walls = []
 for y in range(len(mapArray)):
     for x in range(len(mapArray[y])):
         if mapArray[x][y] < 255:
             # map direction correction
-            m.walls.append((29 - y, x))
+            m.walls.append((x, y))
 
 def graphics_thread():
     global target, m, predatorList
     while graphics_continue:
+        pygame.draw.rect(screen, BLACK, (0,0,500,500))
         for row in range(m.height):
             for col in range(m.width):
                 if m.passable((row, col)):
                     # ground color
                     c = BLACK
+                    for predator in predatorList:
+                        dx = row - predator.get_pos()[0]
+                        dy = col - predator.get_pos()[1]
+                        distance = math.sqrt(dx**2 + dy**2)
+                        if distance == 0:
+                            distance = 0.0001
+                        sine = dy / distance
+                        cosine = dx / distance
+                        if math.asin(sine) < predator.direction_of_view + 1 and math.asin(sine) > predator.direction_of_view - 1:
+                            
+                            if math.acos(cosine) < predator.direction_of_view + 1 and math.acos(cosine) > predator.direction_of_view - 1:
+
+                                if dx**2 + dy ** 2 < predator.range_of_view ** 2 + 0.1:
+                                    c = ORANGE
+
+                        if (row, col) in predator.pathToTarget:
+                            c = BLUE
                 else:
                     # wall color
                     c = GREY
+
+
                 # draw map block
                 pygame.draw.rect(screen, c, (row * 10, col * 10, 8, 8))
 
@@ -95,12 +116,24 @@ def physics_thread():
         # for each predator
         for predator in predatorList:
             # find path to target
-            path = a_star_search(m, (predator.get_pos()[0], predator.get_pos()[1]), (target.get_pos()[0], target.get_pos()[1]))
+            path = a_star_search(m, (predator.get_pos()[0], predator.get_pos()[1]), (target.get_pos()[0], target.get_pos()[1]), predator.range_of_view)
             predator.pathToTarget = path
             # if didn't reach target and allow to move
             if len(predator.pathToTarget) > 1 and predator.timer > predator.get_move_duration():
+                # set direction based on next node
+                dx = predator.pathToTarget[1][0] - predator.get_pos()[0]
+                dy = predator.pathToTarget[1][1] - predator.get_pos()[1]
+                distance = math.sqrt(dx**2 + dy**2)
+                if distance == 0:
+                    distance = 0.0001
+                sine = dy / distance
+                # cosine = dx / distance
+                predator.direction_of_view = math.asin(sine)
+                # print(predator.direction_of_view)
+
                 # move to the next node on path
                 predator.set_pos(predator.pathToTarget[1])
+                
                 # reset timer
                 predator.timer = 0
             else:
