@@ -2,7 +2,11 @@ import numpy as np
 from PIL import Image
 
 def generateMap(map, size_x, size_y):
-    im = Image.open(map)
+    try:
+        im = Image.open(map)
+    except:
+        print("graph not find")
+        return
     im = im.transpose(Image.FLIP_TOP_BOTTOM)
     im = im.convert("L")
     data = im.getdata()
