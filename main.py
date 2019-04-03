@@ -62,29 +62,15 @@ for y in range(len(mapArray)):
 def graphics_thread():
     global target, m, predatorList
     while graphics_continue:
-        pygame.draw.rect(screen, BLACK, (0,0,500,500))
+        pygame.draw.rect(screen, BLACK, (0, 0, 500, 500))
+
         for row in range(m.height):
             for col in range(m.width):
                 if m.passable((row, col)):
                     # ground color
                     c = BLACK
-                    for predator in predatorList:
-                        dx = row - predator.get_pos()[0]
-                        dy = col - predator.get_pos()[1]
-                        distance = math.sqrt(dx**2 + dy**2)
-                        if distance == 0:
-                            distance = 0.0001
-                        sine = dy / distance
-                        cosine = dx / distance
-                        if math.asin(sine) < predator.direction_of_view + 1 and math.asin(sine) > predator.direction_of_view - 1:
-                            
-                            if math.acos(cosine) < predator.direction_of_view + 1 and math.acos(cosine) > predator.direction_of_view - 1:
 
-                                if dx**2 + dy ** 2 < predator.range_of_view ** 2 + 0.1:
-                                    c = ORANGE
-                        
-                        if (row, col) in predator.pathToTarget:
-                            c = BLUE
+
                 else:
                     # wall color
                     c = GREY
@@ -93,10 +79,22 @@ def graphics_thread():
 
         # predator
         for predator in predatorList:
-            pygame.draw.rect(screen, RED, (predator.get_pos()[0] * 10, predator.get_pos()[1] * 10, 8, 8))
+            arc_posx = (predator.get_pos()[0] - predator.range_of_view / 2) * 10
+            arc_posy = (predator.get_pos()[1] - predator.range_of_view / 2) * 10
+
+            pygame.draw.arc(screen,
+                            RED,
+                            (arc_posx, arc_posy, predator.range_of_view * 10, predator.range_of_view * 10),
+                            -predator.direction_of_view - 1, -predator.direction_of_view + 1, 2)
+            print(predator.direction_of_view)
+            for (row, col) in predator.pathToTarget:
+                c = BLUE
+                pygame.draw.rect(screen, c, (row * 10, col * 10, 8, 8))
         # prey
         pygame.draw.rect(screen, GREEN, (target.get_pos()[0] * 10, target.get_pos()[1] * 10, 8, 8))
 
+        for predator in predatorList:
+            pygame.draw.rect(screen, RED, (predator.get_pos()[0] * 10, predator.get_pos()[1] * 10, 8, 8))
         pygame.display.flip()
         graphics_clock.tick(60)
 
@@ -121,13 +119,15 @@ def physics_thread():
                 # set direction based on next node
                 dx = predator.pathToTarget[1][0] - predator.get_pos()[0]
                 dy = predator.pathToTarget[1][1] - predator.get_pos()[1]
-                distance = math.sqrt(dx**2 + dy**2)
-                if distance == 0:
-                    distance = 0.0001
-                sine = dy / distance
-                # cosine = dx / distance
-                predator.direction_of_view = math.asin(sine)
-                # print(predator.direction_of_view)
+                # Radians 0 right, pi/2 up, pi left, 3pi/4 down
+                if dx > 0 and dy == 0:
+                    predator.direction_of_view = 0
+                elif dx == 0 and dy > 0:
+                    predator.direction_of_view = math.pi / 2
+                elif dx < 0 and dy == 0:
+                    predator.direction_of_view = math.pi
+                elif dx == 0 and dy < 0:
+                    predator.direction_of_view = 3 * math.pi / 2
 
                 # move to the next node on path
                 predator.set_pos(predator.pathToTarget[1])
