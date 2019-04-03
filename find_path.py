@@ -1,4 +1,4 @@
-# using an a star algorithm to help the AI finding their path to the target
+# using an a star algorithm to help the AI finding their path to the prey
 import heapq
 
 class PriorityQueue:

@@ -40,8 +40,8 @@ predator3 = bot(center_position=[30, 10])
 # organize predators into a predator list
 predatorList = [predator1, predator2, predator3]
 
-# initialize target position
-target = bot(center_position=[49, 49])
+# initialize prey position
+prey = bot(center_position=[49, 49])
 
 # the size of each grid is 10x10 -> map cordinate = pixel cordinate / 10
 m = GridWithWeights(map_size[0], map_size[1])
@@ -56,7 +56,7 @@ for x in range(len(mapArray)):
 
 
 def graphics_thread():
-    global target, m, predatorList
+    global prey, m, predatorList
     while graphics_continue:
         pygame.draw.rect(screen, BLACK, (0, 0, 500, 500))
 
@@ -86,14 +86,14 @@ def graphics_thread():
             # draw left line of view field
             pygame.draw.line(screen,
                              RED,
-                             (predator.get_pos()[0] * 10, predator.get_pos()[1] * 10),
-                             (predator.get_pos()[0] * 10 + predator.range_of_view * 10 * math.cos(predator.direction_of_view + predator.field_of_view / 2 - 0.01),
-                              predator.get_pos()[1] * 10 + predator.range_of_view * 10 * math.sin(predator.direction_of_view + predator.field_of_view / 2 - 0.01)),
+                             (predator.get_pos()[0] * 10 + 5, predator.get_pos()[1] * 10 + 5),
+                             (predator.get_pos()[0] * 10 + predator.range_of_view * 10 * math.cos(predator.direction_of_view + predator.field_of_view / 2),
+                              predator.get_pos()[1] * 10 + predator.range_of_view * 10 * math.sin(predator.direction_of_view + predator.field_of_view / 2)),
                              1)
             # draw right line of view field
             pygame.draw.line(screen,
                              RED,
-                             (predator.get_pos()[0] * 10, predator.get_pos()[1] * 10),
+                             (predator.get_pos()[0] * 10 + 5, predator.get_pos()[1] * 10 + 5),
                              (predator.get_pos()[0] * 10 + predator.range_of_view * 10 * math.cos(predator.direction_of_view - predator.field_of_view / 2),
                               predator.get_pos()[1] * 10 + predator.range_of_view * 10 * math.sin(predator.direction_of_view - predator.field_of_view / 2)),
                              1)
@@ -102,7 +102,7 @@ def graphics_thread():
                 c = BLUE
                 pygame.draw.rect(screen, c, (row * 10, col * 10, 8, 8))
         # prey
-        pygame.draw.rect(screen, GREEN, (target.get_pos()[0] * 10, target.get_pos()[1] * 10, 8, 8))
+        pygame.draw.rect(screen, GREEN, (prey.get_pos()[0] * 10, prey.get_pos()[1] * 10, 8, 8))
 
         # draw predator them self (to prevent the blue path block cover the predators)
         for predator in predatorList:
@@ -112,47 +112,112 @@ def graphics_thread():
 
 
 def AI_thread():
-    global predatorList, target, path, m
+    global predatorList, prey, path, m
     while AI_continue:
-        mpx, mpy = pygame.mouse.get_pos()
-        # translate screen pixel mouse pos to world pos
-        mouse_pos_x = mpx // 10
-        mouse_pos_y = mpy // 10
-        if (mouse_pos_x, mouse_pos_y) in m.walls:
-            pass
+
+        while True:
+            prey_target_x = prey.get_pos()[0] + random.randint(-10, 10)
+            prey_target_y = prey.get_pos()[1] + random.randint(-10, 10)
+            if m.passable((prey_target_x, prey_target_y)) and m.in_bounds((prey_target_x, prey_target_y)):
+                break
+        prey.set_target_pos(prey_target_x, prey_target_y)
+        prey.pathToTarget = a_star_search(m, (prey.get_pos()[0], prey.get_pos()[1]), prey.get_target_pos())
+        if len(prey.pathToTarget) > 1 and prey.timer > prey.get_move_duration():
+            # set direction to prey
+            seen_target_x, seen_target_y = prey.get_target_pos()
+            # dx = seen_target_x - predator.get_pos()[0]
+            # dy = seen_target_y - predator.get_pos()[1]
+            if len(prey.pathToTarget) > 4:
+                lookingAt = 3
+            else:
+                lookingAt = len(prey.pathToTarget) - 1
+            dx = prey.pathToTarget[lookingAt][0] - prey.get_pos()[0]
+            dy = prey.pathToTarget[lookingAt][1] - prey.get_pos()[1]
+            d = math.sqrt(dx ** 2 + dy ** 2)
+            if d != 0:
+                if dy > 0:
+                    prey.direction_of_view = math.acos(dx / d)
+                else:
+                    prey.direction_of_view = math.pi * 2 - math.acos(dx / d)
+
+            # move to the next node on path
+            prey.set_pos(prey.pathToTarget[1])
+
+            # reset timer
+            prey.timer = 0
         else:
-            target.set_pos((mouse_pos_x, mouse_pos_y))
+            # wait for timer to reach move duration limit
+            prey.timer += 1
+
+        # mouse override prey pos
+        if pygame.key.get_pressed()[pygame.K_a]:
+            mpx, mpy = pygame.mouse.get_pos()
+            # translate screen pixel mouse pos to world pos
+            mouse_pos_x = mpx // 10
+            mouse_pos_y = mpy // 10
+            if (mouse_pos_x, mouse_pos_y) in m.walls:
+                pass
+            else:
+                prey.set_pos((mouse_pos_x, mouse_pos_y))
 
         # for each predator
         for predator in predatorList:
-            # calculate if the target is in the field range of the predator
-            if (predator.get_pos()[0] - target.get_pos()[0])**2 + (predator.get_pos()[1] - target.get_pos()[1])**2 < predator.range_of_view ** 2:
-                predator.set_target_pos(target.get_pos()[0], target.get_pos()[1])
+            # calculate if the prey is in the field range of the predator
+            if (predator.get_pos()[0] - prey.get_pos()[0])**2 + (predator.get_pos()[1] - prey.get_pos()[1])**2 < predator.range_of_view ** 2:
+                prey_dx = prey.get_pos()[0] - predator.get_pos()[0]
+                prey_dy = prey.get_pos()[1] - predator.get_pos()[1]
+                d = math.sqrt(prey_dx ** 2 + prey_dy ** 2)
+                if d != 0:
+                    # initialize temp local var angle
+                    angle = 0
+                    if prey_dy > 0:
+                        angle = math.acos(prey_dx / d)
+                    else:
+                        angle = math.pi * 2 - math.acos(prey_dx / d)
+                    # check if the angular position of the prey is in range
+                    if angle < predator.direction_of_view + predator.field_of_view / 2 and angle > predator.direction_of_view - predator.field_of_view / 2:
+                        predator.set_target_pos(prey.get_pos()[0], prey.get_pos()[1])
+                    else:
+                        # magic!!! don't fix!!!
+                        # if the predator reaches prey last sighted spot and found nothing
+                        if predator.get_pos()[0] == predator.get_target_pos()[0] and predator.get_pos()[1] == \
+                                predator.get_target_pos()[1]:
+                            # randomly generate new prey pos until it is neither in the wall or out of the map
+                            while True:
+                                random_new_target_x = predator.get_pos()[0] + random.randint(-5, 5)
+                                random_new_target_y = predator.get_pos()[1] + random.randint(-5, 5)
+                                if m.passable((random_new_target_x, random_new_target_y)) and m.in_bounds(
+                                        (random_new_target_x, random_new_target_y)):
+                                    break
+                            predator.set_target_pos(random_new_target_x, random_new_target_y)
             else:
-                # if the predator reaches target last sighted spot and found nothing
+                # if the predator reaches prey last sighted spot and found nothing
                 if predator.get_pos()[0] == predator.get_target_pos()[0] and predator.get_pos()[1] == predator.get_target_pos()[1]:
-                    # randomly generate new target pos until it is neither in the wall or out of the map
+                    # randomly generate new prey pos until it is neither in the wall or out of the map
                     while True:
                         random_new_target_x = predator.get_pos()[0] + random.randint(-5, 5)
                         random_new_target_y = predator.get_pos()[1] + random.randint(-5, 5)
                         if m.passable((random_new_target_x, random_new_target_y)) and m.in_bounds((random_new_target_x, random_new_target_y)):
                             break
                     predator.set_target_pos(random_new_target_x, random_new_target_y)
-
-            ''' find path to target
+            ''' find path to prey
                 without the range of view (max search depth parameter)
                 the find path algorithm will use 100 as default
             '''
-            path = a_star_search(m, (predator.get_pos()[0], predator.get_pos()[1]), predator.get_target_pos())
-            predator.pathToTarget = path
-            # if didn't reach target and allow to move
+            # s star search
+            predator.pathToTarget = a_star_search(m, (predator.get_pos()[0], predator.get_pos()[1]), predator.get_target_pos())
+            # if didn't reach prey and allow to move
             if len(predator.pathToTarget) > 1 and predator.timer > predator.get_move_duration():
-                # set direction to target
+                # set direction to prey
                 seen_target_x, seen_target_y = predator.get_target_pos()
                 # dx = seen_target_x - predator.get_pos()[0]
                 # dy = seen_target_y - predator.get_pos()[1]
-                dx = predator.pathToTarget[1][0] - predator.get_pos()[0]
-                dy = predator.pathToTarget[1][1] - predator.get_pos()[1]
+                if len(predator.pathToTarget) > 4:
+                    lookingAt = 3
+                else:
+                    lookingAt = len(predator.pathToTarget) - 1
+                dx = predator.pathToTarget[lookingAt][0] - predator.get_pos()[0]
+                dy = predator.pathToTarget[lookingAt][1] - predator.get_pos()[1]
                 d = math.sqrt(dx**2 + dy**2)
                 if d != 0:
                     if dy > 0:
@@ -168,7 +233,9 @@ def AI_thread():
             else:
                 # wait for timer to reach move duration limit
                 predator.timer += 1
-            if predator.get_pos() == target.get_pos():
+
+
+            if predator.get_pos() == prey.get_pos():
                 print("catches!")
 
         physics_clock.tick(60)
@@ -191,11 +258,11 @@ while game_continue:
             graphics_continue = False
             AI_continue = False
             game_continue = False
+
             break
     
     game_clock.tick(60)
 
+print("Q")
 # quit window
-pygame.quit()
-sys.exit()
 exit()
