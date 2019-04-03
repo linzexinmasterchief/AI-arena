@@ -78,10 +78,26 @@ def graphics_thread():
             arc_posy = predator.get_pos()[1] * 10 - predator.range_of_view * 10
 
             # draw range of view for each predator
+            # draw arc of view field
             pygame.draw.arc(screen,
                             RED,
                             (arc_posx, arc_posy, predator.range_of_view * 20, predator.range_of_view * 20),
-                            -predator.direction_of_view - predator.field_of_view / 2, -predator.direction_of_view + predator.field_of_view / 2, 2)
+                            -predator.direction_of_view - predator.field_of_view / 2, -predator.direction_of_view + predator.field_of_view / 2, 1)
+            # draw left line of view field
+            pygame.draw.line(screen,
+                             RED,
+                             (predator.get_pos()[0] * 10, predator.get_pos()[1] * 10),
+                             (predator.get_pos()[0] * 10 + predator.range_of_view * 10 * math.cos(predator.direction_of_view + predator.field_of_view / 2 - 0.01),
+                              predator.get_pos()[1] * 10 + predator.range_of_view * 10 * math.sin(predator.direction_of_view + predator.field_of_view / 2 - 0.01)),
+                             1)
+            # draw right line of view field
+            pygame.draw.line(screen,
+                             RED,
+                             (predator.get_pos()[0] * 10, predator.get_pos()[1] * 10),
+                             (predator.get_pos()[0] * 10 + predator.range_of_view * 10 * math.cos(predator.direction_of_view - predator.field_of_view / 2),
+                              predator.get_pos()[1] * 10 + predator.range_of_view * 10 * math.sin(predator.direction_of_view - predator.field_of_view / 2)),
+                             1)
+
             for (row, col) in predator.pathToTarget:
                 c = BLUE
                 pygame.draw.rect(screen, c, (row * 10, col * 10, 8, 8))
@@ -133,8 +149,10 @@ def AI_thread():
             if len(predator.pathToTarget) > 1 and predator.timer > predator.get_move_duration():
                 # set direction to target
                 seen_target_x, seen_target_y = predator.get_target_pos()
-                dx = seen_target_x - predator.get_pos()[0]
-                dy = seen_target_y - predator.get_pos()[1]
+                # dx = seen_target_x - predator.get_pos()[0]
+                # dy = seen_target_y - predator.get_pos()[1]
+                dx = predator.pathToTarget[1][0] - predator.get_pos()[0]
+                dy = predator.pathToTarget[1][1] - predator.get_pos()[1]
                 d = math.sqrt(dx**2 + dy**2)
                 if d != 0:
                     if dy > 0:
