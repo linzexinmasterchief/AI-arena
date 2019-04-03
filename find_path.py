@@ -21,7 +21,7 @@ def heuristic(a, b):
     return abs(x1 - x2) + abs(y1 - y2)
 
 
-def a_star_search(graph, start, goal, max_search_depth = 15):
+def a_star_search(graph, start, goal, max_search_depth = 300):
     frontier = PriorityQueue()
     frontier.put(start, 0)
     came_from = {}
