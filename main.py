@@ -24,7 +24,7 @@ pygame.display.set_caption("AI_playground")
 game_clock = pygame.time.Clock()
 game_continue = True
 physics_clock = pygame.time.Clock()
-physics_continue = True
+AI_continue = True
 graphics_clock = pygame.time.Clock()
 graphics_continue = True
 
@@ -79,14 +79,13 @@ def graphics_thread():
 
         # predator
         for predator in predatorList:
-            arc_posx = (predator.get_pos()[0] - predator.range_of_view / 2) * 10
-            arc_posy = (predator.get_pos()[1] - predator.range_of_view / 2) * 10
+            arc_posx = predator.get_pos()[0] * 10 - predator.range_of_view * 10
+            arc_posy = predator.get_pos()[1] * 10 - predator.range_of_view * 10
 
             pygame.draw.arc(screen,
                             RED,
-                            (arc_posx, arc_posy, predator.range_of_view * 10, predator.range_of_view * 10),
-                            -predator.direction_of_view - 1, -predator.direction_of_view + 1, 2)
-            print(predator.direction_of_view)
+                            (arc_posx, arc_posy, predator.range_of_view * 20, predator.range_of_view * 20),
+                            -predator.direction_of_view - predator.field_of_view / 2, -predator.direction_of_view + predator.field_of_view / 2, 2)
             for (row, col) in predator.pathToTarget:
                 c = BLUE
                 pygame.draw.rect(screen, c, (row * 10, col * 10, 8, 8))
@@ -96,12 +95,13 @@ def graphics_thread():
         for predator in predatorList:
             pygame.draw.rect(screen, RED, (predator.get_pos()[0] * 10, predator.get_pos()[1] * 10, 8, 8))
         pygame.display.flip()
-        graphics_clock.tick(60)
+        graphics_clock.tick(100)
 
-def physics_thread():
+def AI_thread():
     global predatorList, target, path, m
-    while physics_continue:
+    while AI_continue:
         mpx, mpy = pygame.mouse.get_pos()
+        # translate screen pixel mouse pos to world pos
         mouse_pos_x = mpx // 10
         mouse_pos_y = mpy // 10
         if (mouse_pos_x, mouse_pos_y) in m.walls:
@@ -111,41 +111,41 @@ def physics_thread():
 
         # for each predator
         for predator in predatorList:
-            # find path to target
-            path = a_star_search(m, (predator.get_pos()[0], predator.get_pos()[1]), (target.get_pos()[0], target.get_pos()[1]), predator.range_of_view)
-            predator.pathToTarget = path
-            # if didn't reach target and allow to move
-            if len(predator.pathToTarget) > 1 and predator.timer > predator.get_move_duration():
-                # set direction based on next node
-                dx = predator.pathToTarget[1][0] - predator.get_pos()[0]
-                dy = predator.pathToTarget[1][1] - predator.get_pos()[1]
-                # Radians 0 right, pi/2 up, pi left, 3pi/4 down
-                if dx > 0 and dy == 0:
-                    predator.direction_of_view = 0
-                elif dx == 0 and dy > 0:
-                    predator.direction_of_view = math.pi / 2
-                elif dx < 0 and dy == 0:
-                    predator.direction_of_view = math.pi
-                elif dx == 0 and dy < 0:
-                    predator.direction_of_view = 3 * math.pi / 2
+            if (predator.get_pos()[0] - target.get_pos()[0])**2 + (predator.get_pos()[1] - target.get_pos()[1])**2 < predator.range_of_view ** 2:
+                # find path to target
+                path = a_star_search(m, (predator.get_pos()[0], predator.get_pos()[1]), (target.get_pos()[0], target.get_pos()[1]), predator.range_of_view)
+                predator.pathToTarget = path
+                # if didn't reach target and allow to move
+                if len(predator.pathToTarget) > 1 and predator.timer > predator.get_move_duration():
+                    # set direction based on next node
+                    dx = predator.pathToTarget[1][0] - predator.get_pos()[0]
+                    dy = predator.pathToTarget[1][1] - predator.get_pos()[1]
+                    # Radians 0 right, pi/2 up, pi left, 3pi/4 down
+                    if dx > 0 and dy == 0:
+                        predator.direction_of_view = 0
+                    elif dx == 0 and dy > 0:
+                        predator.direction_of_view = math.pi / 2
+                    elif dx < 0 and dy == 0:
+                        predator.direction_of_view = math.pi
+                    elif dx == 0 and dy < 0:
+                        predator.direction_of_view = 3 * math.pi / 2
 
-                # move to the next node on path
-                predator.set_pos(predator.pathToTarget[1])
-                
-                # reset timer
-                predator.timer = 0
-            else:
-                # wait for timer to reach move duration limit
-                predator.timer += 1
-            if predator.get_pos() == target.get_pos():
-                print("catched!")
+                    # move to the next node on path
+                    predator.set_pos(predator.pathToTarget[1])
 
-        # print(str(predator1.timer) + " | " + str(predator2.timer))
+                    # reset timer
+                    predator.timer = 0
+                else:
+                    # wait for timer to reach move duration limit
+                    predator.timer += 1
+                if predator.get_pos() == target.get_pos():
+                    print("catched!")
+
         physics_clock.tick(60)
 
 
 # physics thread predator1
-pTarget = threading.Thread(target=physics_thread)
+pTarget = threading.Thread(target=AI_thread)
 pTarget.start()
 
 # graphics thread predator1
@@ -159,8 +159,9 @@ while game_continue:
         if event.type == pygame.QUIT:
             # exit all threads
             graphics_continue = False
-            physics_continue = False
+            AI_continue = False
             game_continue = False
+            exit()
     
     game_clock.tick(60)
 
