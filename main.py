@@ -51,7 +51,7 @@ target = bot(center_position=[49, 49])
 # the size of each grid is 10x10 -> map cordinate = pixel cordinate / 10
 m = GridWithWeights(map_size[0], map_size[1])
 # produce map from grey scale picture, contains walls
-mapArray = generateMap("map100.bmp", map_size[0], map_size[1])
+mapArray = generateMap("map50.bmp", map_size[0], map_size[1])
 m.walls = []
 for y in range(len(mapArray)):
     for x in range(len(mapArray[y])):
