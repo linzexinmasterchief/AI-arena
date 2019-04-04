@@ -1,6 +1,6 @@
 import pygame
 import threading
-
+import time
 from bot import *
 from maps import *
 
@@ -23,6 +23,7 @@ game_clock = pygame.time.Clock()
 game_continue = True
 physics_clock = pygame.time.Clock()
 AI_continue = True
+AI_PAUSED = False
 graphics_clock = pygame.time.Clock()
 graphics_continue = True
 
@@ -142,8 +143,15 @@ def set_auto_cruise_target(bot, range):
 
 
 def AI_thread():
-    global predatorList, prey, path, m
+    global predatorList, prey, path, m, AI_PAUSED
     while AI_continue:
+        # pause the simulation
+        if pygame.key.get_pressed()[pygame.K_SPACE]:
+            AI_PAUSED = not AI_PAUSED
+            time.sleep(0.5)
+
+        if AI_PAUSED:
+            continue
         # prey AI
         # calculate if the prey is in the field range of the predator
         # find the closest predator
@@ -203,6 +211,8 @@ def AI_thread():
                 pass
             else:
                 prey.set_pos((mouse_pos_x, mouse_pos_y))
+
+
 
         # for each predator
         for predator in predatorList:
@@ -292,6 +302,8 @@ while game_continue:
             game_continue = False
 
             break
+        # if event.type == pygame.KEYDOWN:
+        #     if
     
     game_clock.tick(60)
 
