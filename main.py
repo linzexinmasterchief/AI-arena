@@ -43,7 +43,7 @@ predator3 = bot(center_position=[30, 10])
 predatorList = [predator1, predator2, predator3]
 
 # initialize prey position
-prey = bot(center_position=[49, 49], move_duration=5, field_of_view=3 * math.pi / 2, range_of_view=15)
+prey = bot(center_position=[49, 49], move_duration=5, field_of_view=math.pi / 2, range_of_view=15)
 
 # the size of each grid is 10x10 -> map coordinate = pixel coordinate / 10
 m = GridWithWeights(map_size[0], map_size[1])
@@ -129,7 +129,7 @@ def graphics_thread():
         for predator in predatorList:
             pygame.draw.rect(screen, RED, (predator.get_pos()[0] * 10, predator.get_pos()[1] * 10, 8, 8))
         pygame.display.flip()
-        graphics_clock.tick(100)
+        graphics_clock.tick(60)
 
 
 def set_auto_cruise_target(bot, range):
@@ -140,6 +140,22 @@ def set_auto_cruise_target(bot, range):
             break
     bot.set_target_pos(bot_x, bot_y)
     bot.pathToTarget = a_star_search(m, (bot.get_pos()[0], bot.get_pos()[1]), bot.get_target_pos())
+
+
+def is_line_blocked_by_wall(x_start=0, y_start=0, x_end=0, y_end=0,):
+    x, y = 0, 0
+    diff_x = x_end - x_start
+    diff_y = y_end - y_start
+    if diff_x == 0:
+        for y in range(y_start, y_end):
+            if not m.passable((x_start, y)):
+                return True
+        return False
+    elif diff_y == 0:
+        for x in range(x_start, x_end):
+            if not m.passable((x, y_start)):
+                return True
+        return False
 
 
 def AI_thread():
@@ -155,17 +171,24 @@ def AI_thread():
         # prey AI
         # calculate if the prey is in the field range of the predator
         # find the closest predator
-        min_dist = 1000
+        min_dist = 10000000
         escape_vector = [0, 0]
         for predator in predatorList:
             if (predator.get_pos()[0] - prey.get_pos()[0]) ** 2 + (predator.get_pos()[1] - prey.get_pos()[1]) ** 2 < prey.range_of_view ** 2:
                 prey_dx = prey.get_pos()[0] - predator.get_pos()[0]
                 prey_dy = prey.get_pos()[1] - predator.get_pos()[1]
-                d = math.sqrt(prey_dx ** 2 + prey_dy ** 2)
+                d = prey_dx ** 2 + prey_dy ** 2
                 if d < min_dist:
                     d = min_dist
-                    escape_vector[0] = prey.get_pos()[0] - predator.get_pos()[0]
-                    escape_vector[1] = prey.get_pos()[1] - predator.get_pos()[1]
+                    if prey.get_pos()[0] - predator.get_pos()[0] > 0:
+                        escape_vector[0] = 1
+                    elif prey.get_pos()[0] - predator.get_pos()[0] < 0:
+                        escape_vector[0] = -1
+
+                    if prey.get_pos()[1] - predator.get_pos()[1] > 0:
+                        escape_vector[1] = 1
+                    elif prey.get_pos()[1] - predator.get_pos()[1] < 0:
+                        escape_vector[1] = -1
                     # print(escape_vector)
                     if m.passable(escape_vector) and m.in_bounds(escape_vector):
                         prey.set_target_pos(prey.get_pos()[0] + escape_vector[0], prey.get_pos()[1] + escape_vector[1])
@@ -210,11 +233,13 @@ def AI_thread():
                 pass
             else:
                 prey.set_pos((mouse_pos_x, mouse_pos_y))
+                prey.pathToTarget = a_star_search(m, (prey.get_pos()[0], prey.get_pos()[1]), prey.get_target_pos())
 
 
 
         # for each predator
         for predator in predatorList:
+            # print(is_line_blocked_by_wall(predator.get_pos()[0], predator.get_pos()[1], prey.get_pos()[0], prey.get_pos()[1]))
             # calculate if the prey is in the field range of the predator
             if (predator.get_pos()[0] - prey.get_pos()[0])**2 + (predator.get_pos()[1] - prey.get_pos()[1])**2 < predator.range_of_view ** 2:
                 prey_dx = prey.get_pos()[0] - predator.get_pos()[0]
