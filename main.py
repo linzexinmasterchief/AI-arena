@@ -41,7 +41,7 @@ predator3 = bot(center_position=[30, 10])
 predatorList = [predator1, predator2, predator3]
 
 # initialize prey position
-prey = bot(center_position=[49, 49])
+prey = bot(center_position=[49, 49], move_duration=5)
 
 # the size of each grid is 10x10 -> map cordinate = pixel cordinate / 10
 m = GridWithWeights(map_size[0], map_size[1])
@@ -53,6 +53,36 @@ for x in range(len(mapArray)):
         if mapArray[x][y] < 255:
             # map direction correction
             m.walls.append((x, y))
+
+
+def draw_view_field(bot):
+    # calculate the left top corner coordinate for the range of view arc
+    arc_posx = bot.get_pos()[0] * 10 - bot.range_of_view * 10
+    arc_posy = bot.get_pos()[1] * 10 - bot.range_of_view * 10
+    # draw arc of view field
+    pygame.draw.arc(screen,
+                    RED,
+                    (arc_posx, arc_posy, bot.range_of_view * 20, bot.range_of_view * 20),
+                    -bot.direction_of_view - bot.field_of_view / 2,
+                    -bot.direction_of_view + bot.field_of_view / 2, 1)
+    # draw left line of view field
+    pygame.draw.line(screen,
+                     RED,
+                     (bot.get_pos()[0] * 10 + 5, bot.get_pos()[1] * 10 + 5),
+                     (bot.get_pos()[0] * 10 + bot.range_of_view * 10 * math.cos(
+                         bot.direction_of_view + bot.field_of_view / 2),
+                      bot.get_pos()[1] * 10 + bot.range_of_view * 10 * math.sin(
+                          bot.direction_of_view + bot.field_of_view / 2)),
+                     1)
+    # draw right line of view field
+    pygame.draw.line(screen,
+                     RED,
+                     (bot.get_pos()[0] * 10 + 5, bot.get_pos()[1] * 10 + 5),
+                     (bot.get_pos()[0] * 10 + bot.range_of_view * 10 * math.cos(
+                         bot.direction_of_view - bot.field_of_view / 2),
+                      bot.get_pos()[1] * 10 + bot.range_of_view * 10 * math.sin(
+                          bot.direction_of_view - bot.field_of_view / 2)),
+                     1)
 
 
 def graphics_thread():
@@ -73,30 +103,8 @@ def graphics_thread():
 
         # predator
         for predator in predatorList:
-            # calculate the left top corner coordinate for the range of view arc
-            arc_posx = predator.get_pos()[0] * 10 - predator.range_of_view * 10
-            arc_posy = predator.get_pos()[1] * 10 - predator.range_of_view * 10
-
             # draw range of view for each predator
-            # draw arc of view field
-            pygame.draw.arc(screen,
-                            RED,
-                            (arc_posx, arc_posy, predator.range_of_view * 20, predator.range_of_view * 20),
-                            -predator.direction_of_view - predator.field_of_view / 2, -predator.direction_of_view + predator.field_of_view / 2, 1)
-            # draw left line of view field
-            pygame.draw.line(screen,
-                             RED,
-                             (predator.get_pos()[0] * 10 + 5, predator.get_pos()[1] * 10 + 5),
-                             (predator.get_pos()[0] * 10 + predator.range_of_view * 10 * math.cos(predator.direction_of_view + predator.field_of_view / 2),
-                              predator.get_pos()[1] * 10 + predator.range_of_view * 10 * math.sin(predator.direction_of_view + predator.field_of_view / 2)),
-                             1)
-            # draw right line of view field
-            pygame.draw.line(screen,
-                             RED,
-                             (predator.get_pos()[0] * 10 + 5, predator.get_pos()[1] * 10 + 5),
-                             (predator.get_pos()[0] * 10 + predator.range_of_view * 10 * math.cos(predator.direction_of_view - predator.field_of_view / 2),
-                              predator.get_pos()[1] * 10 + predator.range_of_view * 10 * math.sin(predator.direction_of_view - predator.field_of_view / 2)),
-                             1)
+            draw_view_field(predator)
 
             for (row, col) in predator.pathToTarget:
                 c = BLUE
@@ -110,18 +118,21 @@ def graphics_thread():
         pygame.display.flip()
         graphics_clock.tick(100)
 
+def set_auto_cruise_target(bot, range):
+    while True:
+        bot_x = bot.get_pos()[0] + random.randint(-range, range)
+        bot_y = bot.get_pos()[1] + random.randint(-range, range)
+        if m.passable((bot_x, bot_y)) and m.in_bounds((bot_x, bot_y)):
+            break
+    bot.set_target_pos(bot_x, bot_y)
+    bot.pathToTarget = a_star_search(m, (bot.get_pos()[0], bot.get_pos()[1]), bot.get_target_pos())
+
 
 def AI_thread():
     global predatorList, prey, path, m
     while AI_continue:
-
-        while True:
-            prey_target_x = prey.get_pos()[0] + random.randint(-10, 10)
-            prey_target_y = prey.get_pos()[1] + random.randint(-10, 10)
-            if m.passable((prey_target_x, prey_target_y)) and m.in_bounds((prey_target_x, prey_target_y)):
-                break
-        prey.set_target_pos(prey_target_x, prey_target_y)
-        prey.pathToTarget = a_star_search(m, (prey.get_pos()[0], prey.get_pos()[1]), prey.get_target_pos())
+        # prey AI
+        set_auto_cruise_target(prey, 10)
         if len(prey.pathToTarget) > 1 and prey.timer > prey.get_move_duration():
             # set direction to prey
             seen_target_x, seen_target_y = prey.get_target_pos()
@@ -141,7 +152,7 @@ def AI_thread():
                     prey.direction_of_view = math.pi * 2 - math.acos(dx / d)
 
             # move to the next node on path
-            prey.set_pos(prey.pathToTarget[1])
+            prey.move_to_next()
 
             # reset timer
             prey.timer = 0
@@ -177,35 +188,24 @@ def AI_thread():
                     # check if the angular position of the prey is in range
                     if angle < predator.direction_of_view + predator.field_of_view / 2 and angle > predator.direction_of_view - predator.field_of_view / 2:
                         predator.set_target_pos(prey.get_pos()[0], prey.get_pos()[1])
+                        # recalculate route
+                        predator.pathToTarget = a_star_search(m, (predator.get_pos()[0], predator.get_pos()[1]),predator.get_target_pos())
                     else:
-                        # magic!!! don't fix!!!
+                        # if the prey is in range but out of view field angle, enter auto cruise mode
                         # if the predator reaches prey last sighted spot and found nothing
-                        if predator.get_pos()[0] == predator.get_target_pos()[0] and predator.get_pos()[1] == \
-                                predator.get_target_pos()[1]:
+                        if predator.get_pos()[0] == predator.get_target_pos()[0] and predator.get_pos()[1] == predator.get_target_pos()[1]:
                             # randomly generate new prey pos until it is neither in the wall or out of the map
-                            while True:
-                                random_new_target_x = predator.get_pos()[0] + random.randint(-5, 5)
-                                random_new_target_y = predator.get_pos()[1] + random.randint(-5, 5)
-                                if m.passable((random_new_target_x, random_new_target_y)) and m.in_bounds(
-                                        (random_new_target_x, random_new_target_y)):
-                                    break
-                            predator.set_target_pos(random_new_target_x, random_new_target_y)
+                            set_auto_cruise_target(predator, predator.range_of_view // 1)
             else:
                 # if the predator reaches prey last sighted spot and found nothing
                 if predator.get_pos()[0] == predator.get_target_pos()[0] and predator.get_pos()[1] == predator.get_target_pos()[1]:
                     # randomly generate new prey pos until it is neither in the wall or out of the map
-                    while True:
-                        random_new_target_x = predator.get_pos()[0] + random.randint(-5, 5)
-                        random_new_target_y = predator.get_pos()[1] + random.randint(-5, 5)
-                        if m.passable((random_new_target_x, random_new_target_y)) and m.in_bounds((random_new_target_x, random_new_target_y)):
-                            break
-                    predator.set_target_pos(random_new_target_x, random_new_target_y)
+                    set_auto_cruise_target(predator, predator.range_of_view // 1)
             ''' find path to prey
                 without the range of view (max search depth parameter)
                 the find path algorithm will use 100 as default
             '''
-            # s star search
-            predator.pathToTarget = a_star_search(m, (predator.get_pos()[0], predator.get_pos()[1]), predator.get_target_pos())
+
             # if didn't reach prey and allow to move
             if len(predator.pathToTarget) > 1 and predator.timer > predator.get_move_duration():
                 # set direction to prey
@@ -225,15 +225,17 @@ def AI_thread():
                     else:
                         predator.direction_of_view = math.pi * 2 - math.acos(dx / d)
 
-                # move to the next node on path
-                predator.set_pos(predator.pathToTarget[1])
+                predator.move_to_next()
 
                 # reset timer
                 predator.timer = 0
+            elif len(predator.pathToTarget) <= 1:
+                # plan a new route if the no further nodes left
+                # a star search
+                predator.pathToTarget = a_star_search(m, (predator.get_pos()[0], predator.get_pos()[1]), predator.get_target_pos())
             else:
                 # wait for timer to reach move duration limit
                 predator.timer += 1
-
 
             if predator.get_pos() == prey.get_pos():
                 print("catches!")

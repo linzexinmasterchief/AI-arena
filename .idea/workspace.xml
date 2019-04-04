@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8571be9c-b035-4922-bf95-08129be096b6" name="Default Changelist" comment="">
+    <list default="true" id="8571be9c-b035-4922-bf95-08129be096b6" name="Default Changelist" comment="completed prey auto cruise, still need to add avoiding predators">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/find_path.py" beforeDir="false" afterPath="$PROJECT_DIR$/find_path.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/animal.py" beforeDir="false" afterPath="$PROJECT_DIR$/animal.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/map50.bmp" beforeDir="false" afterPath="$PROJECT_DIR$/map50.bmp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -17,8 +18,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="352">
-              <caret line="266" column="13" selection-start-line="266" selection-start-column="13" selection-end-line="266" selection-end-column="13" />
+            <state relative-caret-position="288">
+              <caret line="238" selection-start-line="238" selection-end-line="238" />
             </state>
           </provider>
         </entry>
@@ -26,8 +27,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/animal.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="16">
-              <caret line="8" column="51" selection-start-line="8" selection-start-column="51" selection-end-line="8" selection-end-column="51" />
+            <state relative-caret-position="128">
+              <caret line="9" column="48" selection-start-line="9" selection-start-column="48" selection-end-line="9" selection-end-column="48" />
             </state>
           </provider>
         </entry>
@@ -35,7 +36,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/find_path.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="446">
+            <state relative-caret-position="640">
               <caret line="40" column="35" selection-start-line="40" selection-start-column="35" selection-end-line="40" selection-end-column="35" />
             </state>
           </provider>
@@ -54,6 +55,8 @@
     <findStrings>
       <find>direction_of_view</find>
       <find>print</find>
+      <find>a_star_search</find>
+      <find>pathToTarget</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -70,9 +73,9 @@
         <option value="$PROJECT_DIR$/AI_predator.py" />
         <option value="$PROJECT_DIR$/AI_pray.py" />
         <option value="$PROJECT_DIR$/map.py" />
-        <option value="$PROJECT_DIR$/animal.py" />
         <option value="$PROJECT_DIR$/maps.py" />
         <option value="$PROJECT_DIR$/find_path.py" />
+        <option value="$PROJECT_DIR$/animal.py" />
         <option value="$PROJECT_DIR$/main.py" />
       </list>
     </option>
@@ -277,7 +280,14 @@
       <option name="project" value="LOCAL" />
       <updated>1554306536350</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="completed prey auto cruise, still need to add avoiding predators">
+      <created>1554315765110</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1554315765110</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TodoView">
@@ -293,7 +303,7 @@
     <frame x="-7" y="-7" width="1381" height="885" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15219004" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15144767" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -373,7 +383,8 @@
     <MESSAGE value="change the name of new map200 to map50 since the size is reduced to help improve running speed" />
     <MESSAGE value="allow the predators to go for targets last seen location or enter cruise mode if target is not found" />
     <MESSAGE value="completed the field of view visualization" />
-    <option name="LAST_COMMIT_MESSAGE" value="completed the field of view visualization" />
+    <MESSAGE value="completed prey auto cruise, still need to add avoiding predators" />
+    <option name="LAST_COMMIT_MESSAGE" value="completed prey auto cruise, still need to add avoiding predators" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/AI_predator.py" />
@@ -401,22 +412,22 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/find_path.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="446">
+        <state relative-caret-position="640">
           <caret line="40" column="35" selection-start-line="40" selection-start-column="35" selection-end-line="40" selection-end-column="35" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/animal.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="16">
-          <caret line="8" column="51" selection-start-line="8" selection-start-column="51" selection-end-line="8" selection-end-column="51" />
+        <state relative-caret-position="128">
+          <caret line="9" column="48" selection-start-line="9" selection-start-column="48" selection-end-line="9" selection-end-column="48" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="352">
-          <caret line="266" column="13" selection-start-line="266" selection-start-column="13" selection-end-line="266" selection-end-column="13" />
+        <state relative-caret-position="288">
+          <caret line="238" selection-start-line="238" selection-end-line="238" />
         </state>
       </provider>
     </entry>
