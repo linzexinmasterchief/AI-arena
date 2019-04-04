@@ -145,6 +145,25 @@ def AI_thread():
     global predatorList, prey, path, m
     while AI_continue:
         # prey AI
+        # calculate if the prey is in the field range of the predator
+        # find the closest predator
+        min_dist = 1000
+        escape_vector = [0, 0]
+        for predator in predatorList:
+            if (predator.get_pos()[0] - prey.get_pos()[0]) ** 2 + (predator.get_pos()[1] - prey.get_pos()[1]) ** 2 < prey.range_of_view ** 2:
+                prey_dx = prey.get_pos()[0] - predator.get_pos()[0]
+                prey_dy = prey.get_pos()[1] - predator.get_pos()[1]
+                d = math.sqrt(prey_dx ** 2 + prey_dy ** 2)
+                if d < min_dist:
+                    d = min_dist
+                    escape_vector[0] = prey.get_pos()[0] - predator.get_pos()[0]
+                    escape_vector[1] = prey.get_pos()[1] - predator.get_pos()[1]
+                    # print(escape_vector)
+                    if m.passable(escape_vector) and m.in_bounds(escape_vector):
+                        prey.set_target_pos(prey.get_pos()[0] + escape_vector[0], prey.get_pos()[1] + escape_vector[1])
+                        prey.pathToTarget = a_star_search(m, (prey.get_pos()[0], prey.get_pos()[1]), prey.get_target_pos())
+
+
         if len(prey.pathToTarget) > 1 and prey.timer > prey.get_move_duration():
             # set direction to prey
             if len(prey.pathToTarget) > 4:
