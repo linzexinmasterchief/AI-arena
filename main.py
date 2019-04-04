@@ -48,7 +48,7 @@ prey = bot(center_position=[49, 49], move_duration=5, field_of_view=3 * math.pi 
 # the size of each grid is 10x10 -> map coordinate = pixel coordinate / 10
 m = GridWithWeights(map_size[0], map_size[1])
 # produce map from grey scale picture, contains walls
-mapArray = generateMap("map50.bmp", map_size[0], map_size[1])
+mapArray = generateMap("map50_02.bmp", map_size[0], map_size[1])
 m.walls = []
 for x in range(len(mapArray)):
     for y in range(len(mapArray[x])):
@@ -170,7 +170,6 @@ def AI_thread():
                     if m.passable(escape_vector) and m.in_bounds(escape_vector):
                         prey.set_target_pos(prey.get_pos()[0] + escape_vector[0], prey.get_pos()[1] + escape_vector[1])
                         prey.pathToTarget = a_star_search(m, (prey.get_pos()[0], prey.get_pos()[1]), prey.get_target_pos())
-
 
         if len(prey.pathToTarget) > 1 and prey.timer > prey.get_move_duration():
             # set direction to prey
