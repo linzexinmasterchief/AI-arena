@@ -27,7 +27,7 @@ graphics_clock = pygame.time.Clock()
 graphics_continue = True
 
 # preset color set
-ORANGE = (255, 200, 0)
+ORANGE = (255, 125, 30)
 BLUE = (50, 150, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
@@ -42,7 +42,7 @@ predator3 = bot(center_position=[30, 10])
 predatorList = [predator1, predator2, predator3]
 
 # initialize prey position
-prey = bot(center_position=[49, 49], move_duration=5)
+prey = bot(center_position=[49, 49], move_duration=5, field_of_view=3 * math.pi / 2, range_of_view=15)
 
 # the size of each grid is 10x10 -> map coordinate = pixel coordinate / 10
 m = GridWithWeights(map_size[0], map_size[1])
@@ -56,19 +56,19 @@ for x in range(len(mapArray)):
             m.walls.append((x, y))
 
 
-def draw_view_field(bot):
+def draw_view_field(bot, color=(0, 0, 0)):
     # calculate the left top corner coordinate for the range of view arc
     arc_posx = bot.get_pos()[0] * 10 - bot.range_of_view * 10
     arc_posy = bot.get_pos()[1] * 10 - bot.range_of_view * 10
     # draw arc of view field
     pygame.draw.arc(screen,
-                    RED,
+                    color,
                     (arc_posx, arc_posy, bot.range_of_view * 20, bot.range_of_view * 20),
                     -bot.direction_of_view - bot.field_of_view / 2,
                     -bot.direction_of_view + bot.field_of_view / 2, 1)
     # draw left line of view field
     pygame.draw.line(screen,
-                     RED,
+                     color,
                      (bot.get_pos()[0] * 10 + 5, bot.get_pos()[1] * 10 + 5),
                      (bot.get_pos()[0] * 10 + bot.range_of_view * 10 * math.cos(
                          bot.direction_of_view + bot.field_of_view / 2),
@@ -77,13 +77,18 @@ def draw_view_field(bot):
                      1)
     # draw right line of view field
     pygame.draw.line(screen,
-                     RED,
+                     color,
                      (bot.get_pos()[0] * 10 + 5, bot.get_pos()[1] * 10 + 5),
                      (bot.get_pos()[0] * 10 + bot.range_of_view * 10 * math.cos(
                          bot.direction_of_view - bot.field_of_view / 2),
                       bot.get_pos()[1] * 10 + bot.range_of_view * 10 * math.sin(
                           bot.direction_of_view - bot.field_of_view / 2)),
                      1)
+
+
+def draw_planned_path(bot, color=(0, 0, 0)):
+    for (row, col) in bot.pathToTarget:
+        pygame.draw.rect(screen, color, (row * 10, col * 10, 8, 8))
 
 
 def graphics_thread():
@@ -102,14 +107,20 @@ def graphics_thread():
                 # draw map block
                 pygame.draw.rect(screen, c, (row * 10, col * 10, 8, 8))
 
+        # prey
+        # draw range of view for prey
+        draw_view_field(prey, GREEN)
+        # draw planned path
+        draw_planned_path(prey, BLUE)
+
         # predator
         for predator in predatorList:
             # draw range of view for each predator
-            draw_view_field(predator)
+            draw_view_field(predator, RED)
 
-            for (row, col) in predator.pathToTarget:
-                c = BLUE
-                pygame.draw.rect(screen, c, (row * 10, col * 10, 8, 8))
+            # draw planned path
+            draw_planned_path(predator, ORANGE)
+
         # prey
         pygame.draw.rect(screen, GREEN, (prey.get_pos()[0] * 10, prey.get_pos()[1] * 10, 8, 8))
 
@@ -134,7 +145,6 @@ def AI_thread():
     global predatorList, prey, path, m
     while AI_continue:
         # prey AI
-        set_auto_cruise_target(prey, 10)
         if len(prey.pathToTarget) > 1 and prey.timer > prey.get_move_duration():
             # set direction to prey
             if len(prey.pathToTarget) > 4:
@@ -155,6 +165,11 @@ def AI_thread():
 
             # reset timer
             prey.timer = 0
+        elif len(prey.pathToTarget) <= 1:
+            # plan a new route if the no further nodes left
+            # a star search
+            set_auto_cruise_target(prey, prey.range_of_view)
+            prey.pathToTarget = a_star_search(m, (prey.get_pos()[0], prey.get_pos()[1]), prey.get_target_pos())
         else:
             # wait for timer to reach move duration limit
             prey.timer += 1
@@ -261,6 +276,5 @@ while game_continue:
     
     game_clock.tick(60)
 
-print("Q")
 # quit window
 exit()
