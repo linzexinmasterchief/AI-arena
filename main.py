@@ -1,6 +1,7 @@
-import pygame, sys, threading, math
+import pygame
+import threading
 
-from animal import *
+from bot import *
 from maps import *
 
 from find_path import *
@@ -43,7 +44,7 @@ predatorList = [predator1, predator2, predator3]
 # initialize prey position
 prey = bot(center_position=[49, 49], move_duration=5)
 
-# the size of each grid is 10x10 -> map cordinate = pixel cordinate / 10
+# the size of each grid is 10x10 -> map coordinate = pixel coordinate / 10
 m = GridWithWeights(map_size[0], map_size[1])
 # produce map from grey scale picture, contains walls
 mapArray = generateMap("map50.bmp", map_size[0], map_size[1])
@@ -186,10 +187,10 @@ def AI_thread():
                     else:
                         angle = math.pi * 2 - math.acos(prey_dx / d)
                     # check if the angular position of the prey is in range
-                    if angle < predator.direction_of_view + predator.field_of_view / 2 and angle > predator.direction_of_view - predator.field_of_view / 2:
+                    if predator.direction_of_view + predator.field_of_view / 2 > angle > predator.direction_of_view - predator.field_of_view / 2:
                         predator.set_target_pos(prey.get_pos()[0], prey.get_pos()[1])
                         # recalculate route
-                        predator.pathToTarget = a_star_search(m, (predator.get_pos()[0], predator.get_pos()[1]),predator.get_target_pos())
+                        predator.pathToTarget = a_star_search(m, (predator.get_pos()[0], predator.get_pos()[1]), predator.get_target_pos())
                     else:
                         # if the prey is in range but out of view field angle, enter auto cruise mode
                         # if the predator reaches prey last sighted spot and found nothing

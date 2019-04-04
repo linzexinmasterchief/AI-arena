@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8571be9c-b035-4922-bf95-08129be096b6" name="Default Changelist" comment="completed prey auto cruise, still need to add avoiding predators">
+    <list default="true" id="8571be9c-b035-4922-bf95-08129be096b6" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/animal.py" beforeDir="false" afterPath="$PROJECT_DIR$/animal.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/animal.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/map50.bmp" beforeDir="false" afterPath="$PROJECT_DIR$/map50.bmp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -15,17 +14,17 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="288">
-              <caret line="238" selection-start-line="238" selection-end-line="238" />
+            <state relative-caret-position="560">
+              <caret line="57" lean-forward="true" selection-start-line="57" selection-end-line="57" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/animal.py">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/bot.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="128">
               <caret line="9" column="48" selection-start-line="9" selection-start-column="48" selection-end-line="9" selection-end-column="48" />
@@ -287,7 +286,14 @@
       <option name="project" value="LOCAL" />
       <updated>1554315765110</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="fixed a few bugs on predator tracking system">
+      <created>1554339052737</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1554339052737</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TodoView">
@@ -301,9 +307,8 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1381" height="885" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15144767" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15144767" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -311,7 +316,7 @@
       <window_info anchor="bottom" id="Debug" order="2" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="3" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="4" weight="0.4" />
-      <window_info active="true" anchor="bottom" id="Run" order="5" sideWeight="0.49740162" visible="true" weight="0.3042328" />
+      <window_info anchor="bottom" id="Run" order="5" sideWeight="0.49740162" visible="true" weight="0.3042328" />
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.4988864" weight="0.32936507" />
       <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49517447" weight="0.32936507" />
       <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.49665925" weight="0.32936507" />
@@ -384,7 +389,8 @@
     <MESSAGE value="allow the predators to go for targets last seen location or enter cruise mode if target is not found" />
     <MESSAGE value="completed the field of view visualization" />
     <MESSAGE value="completed prey auto cruise, still need to add avoiding predators" />
-    <option name="LAST_COMMIT_MESSAGE" value="completed prey auto cruise, still need to add avoiding predators" />
+    <MESSAGE value="fixed a few bugs on predator tracking system" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed a few bugs on predator tracking system" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/AI_predator.py" />
@@ -417,17 +423,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/animal.py">
+    <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="128">
-          <caret line="9" column="48" selection-start-line="9" selection-start-column="48" selection-end-line="9" selection-end-column="48" />
+        <state relative-caret-position="560">
+          <caret line="57" lean-forward="true" selection-start-line="57" selection-end-line="57" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main.py">
+    <entry file="file://$PROJECT_DIR$/bot.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
-          <caret line="238" selection-start-line="238" selection-end-line="238" />
+        <state relative-caret-position="128">
+          <caret line="9" column="48" selection-start-line="9" selection-start-column="48" selection-end-line="9" selection-end-column="48" />
         </state>
       </provider>
     </entry>
