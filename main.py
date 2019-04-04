@@ -119,6 +119,7 @@ def graphics_thread():
         pygame.display.flip()
         graphics_clock.tick(100)
 
+
 def set_auto_cruise_target(bot, range):
     while True:
         bot_x = bot.get_pos()[0] + random.randint(-range, range)
@@ -136,9 +137,6 @@ def AI_thread():
         set_auto_cruise_target(prey, 10)
         if len(prey.pathToTarget) > 1 and prey.timer > prey.get_move_duration():
             # set direction to prey
-            seen_target_x, seen_target_y = prey.get_target_pos()
-            # dx = seen_target_x - predator.get_pos()[0]
-            # dy = seen_target_y - predator.get_pos()[1]
             if len(prey.pathToTarget) > 4:
                 lookingAt = 3
             else:
@@ -210,9 +208,6 @@ def AI_thread():
             # if didn't reach prey and allow to move
             if len(predator.pathToTarget) > 1 and predator.timer > predator.get_move_duration():
                 # set direction to prey
-                seen_target_x, seen_target_y = predator.get_target_pos()
-                # dx = seen_target_x - predator.get_pos()[0]
-                # dy = seen_target_y - predator.get_pos()[1]
                 if len(predator.pathToTarget) > 4:
                     lookingAt = 3
                 else:
